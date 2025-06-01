@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -8,39 +10,45 @@ const Home = ({ searchParams }: SearchParamProps) => {
   const isAdmin = searchParams?.admin === "true";
 
   return (
-    <div className="flex h-screen max-h-screen">
+    <div className="flex min-h-screen flex-col justify-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       {isAdmin && <PasskeyModal />}
 
-      <section className="remove-scrollbar container my-auto">
-        <div className="sub-container max-w-[496px]">
+      <main className="w-full max-w-md mx-auto px-4 py-10 space-y-10">
+        <div className="flex items-center justify-between">
           <Image
-            src="/assets/icons/logo-full.svg"
-            height={1000}
-            width={1000}
-            alt="patient"
-            className="mb-12 h-10 w-fit"
+            src="/assets/icons/favicon.ico"
+            height={40}
+            width={40}
+            alt="CarePlus Logo"
+            className="h-10 w-10"
           />
-
-          <PatientForm />
-
-          <div className="text-14-regular mt-20 flex justify-between">
-            <p className="justify-items-end text-dark-600 xl:text-left">
-              © 2024 CarePluse
-            </p>
-            <Link href="/?admin=true" className="text-green-500">
-              Admin
-            </Link>
-          </div>
+          <Link
+            href="/?admin=true"
+            className="text-sm text-green-600 dark:text-green-400 hover:underline"
+          >
+            Admin
+          </Link>
         </div>
-      </section>
 
-      <Image
-        src="/assets/images/onboarding-img.png"
-        height={1000}
-        width={1000}
-        alt="patient"
-        className="side-img max-w-[50%]"
-      />
+        <PatientForm />
+
+        <footer className="pt-10 border-t border-gray-300 dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400">
+          © 2025 CarePlus. All rights reserved.
+        </footer>
+      </main>
+
+      {/* Uncomment below if you want image section back */}
+      {/*
+      <section className="hidden xl:block xl:w-1/2 relative">
+        <Image
+          src="/assets/images/onboarding-img.png"
+          alt="Onboarding Illustration"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-white/50 dark:from-black/40 dark:to-black/60 backdrop-blur-sm" />
+      </section>
+      */}
     </div>
   );
 };
