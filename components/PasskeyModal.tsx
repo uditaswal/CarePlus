@@ -50,7 +50,7 @@ export const PasskeyModal = () => {
   };
 
   const validatePasskey = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     e.preventDefault();
 

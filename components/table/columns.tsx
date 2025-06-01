@@ -56,7 +56,7 @@ export const columns: ColumnDef<Appointment>[] = [
       const appointment = row.original;
 
       const doctor = Doctors.find(
-        (doctor) => doctor.name === appointment.primaryPhysician
+        (doctor) => doctor.name === appointment.primaryPhysician,
       );
 
       return (
