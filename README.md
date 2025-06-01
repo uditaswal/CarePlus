@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+
 <div align="center">
   <br />
     <a href="https://youtu.be/lEflo_sc82g?feature=shared" target="_blank">
@@ -735,22 +737,22 @@ export const formatDateTime = (dateString: Date | string) => {
 
   const formattedDateTime: string = new Date(dateString).toLocaleString(
     "en-US",
-    dateTimeOptions
+    dateTimeOptions,
   );
 
   const formattedDateDay: string = new Date(dateString).toLocaleString(
     "en-US",
-    dateDayOptions
+    dateDayOptions,
   );
 
   const formattedDate: string = new Date(dateString).toLocaleString(
     "en-US",
-    dateOptions
+    dateOptions,
   );
 
   const formattedTime: string = new Date(dateString).toLocaleString(
     "en-US",
-    timeOptions
+    timeOptions,
   );
 
   return {
@@ -816,7 +818,7 @@ export const PatientFormValidation = z.object({
     .string()
     .refine(
       (emergencyContactNumber) => /^\+\d{10,15}$/.test(emergencyContactNumber),
-      "Invalid phone number"
+      "Invalid phone number",
     ),
   primaryPhysician: z.string().min(2, "Select at least one doctor"),
   insuranceProvider: z
@@ -1018,3 +1020,9 @@ And if you're hungry for more than just a course and want to understand how we l
 </a>
 
 #
+
+=======
+
+# CarePlus
+
+> > > > > > > a844ee4833b1091316d775dff732e9e57ae97e8c
