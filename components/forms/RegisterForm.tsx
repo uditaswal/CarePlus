@@ -242,10 +242,13 @@ const RegisterForm = ({ user }: { user: User }) => {
                     alt="doctor"
                     className="rounded-full border border-dark-500"
                   />
-                  <p>{doctor.name}</p>
+                  <div className="flex flex-col">
+                    <p className="font-medium">{doctor.name}</p>
+                    <p className="text-xs text-gray-500">{doctor.specialty}</p>
+                  </div>
                 </div>
               </SelectItem>
-            ))}
+            ))}}
           </CustomFormField>
 
           {/* INSURANCE & POLICY NUMBER */}

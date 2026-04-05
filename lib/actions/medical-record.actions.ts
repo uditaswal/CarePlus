@@ -18,11 +18,11 @@ import { MedicalRecord } from "@/types/appwrite.types";
 import { parseStringify } from "../utils";
 
 export const createMedicalRecord = async (
-  record: CreateMedicalRecordParams,
+  record: CreateMedicalRecordParams
 ) => {
   if (!MEDICAL_RECORD_COLLECTION_ID) {
     throw new Error(
-      "MEDICAL_RECORD_COLLECTION_ID is not configured. Create the collection in Appwrite first.",
+      "MEDICAL_RECORD_COLLECTION_ID is not configured. Create the collection in Appwrite first."
     );
   }
 
@@ -39,27 +39,37 @@ export const createMedicalRecord = async (
     throw new Error("Patients can only upload files to their own profile.");
   }
 
+  // Store record metadata as JSON and basic required fields
+  const metadata = JSON.stringify({
+    doctorName: record.doctorName,
+    title: record.title,
+    category: record.category,
+    summary: record.summary,
+    documentType: record.documentType || null,
+    relatedTo: record.relatedTo || null,
+    performedOn: record.performedOn || null,
+    physicianName: record.physicianName || null,
+    bloodWork: record.bloodWork || null,
+    medications: record.medications || null,
+    recommendations: record.recommendations || null,
+    followUpDate: record.followUpDate || null,
+  });
+
   const newRecord = await databases.createDocument(
     DATABASE_ID!,
     MEDICAL_RECORD_COLLECTION_ID,
     ID.unique(),
     {
-      ...record,
+      patientId: record.patientId,
+      userId: record.userId,
       appointmentId: record.appointmentId || null,
       uploadedByRole: record.uploadedByRole || session.role,
       uploadedByName: record.uploadedByName || session.name,
       uploadedAt: record.uploadedAt || new Date().toISOString(),
-      documentType: record.documentType || null,
-      relatedTo: record.relatedTo || null,
-      performedOn: record.performedOn || null,
-      physicianName: record.physicianName || null,
-      bloodWork: record.bloodWork || null,
-      medications: record.medications || null,
-      recommendations: record.recommendations || null,
-      followUpDate: record.followUpDate || null,
       attachments: record.attachments || [],
       attachmentMetadata: record.attachmentMetadata || [],
-    },
+      metadata: metadata,
+    }
   );
 
   await logInfo({
@@ -101,7 +111,7 @@ export const uploadMedicalRecordAttachment = async ({
   const uploadedFile = await storage.createFile(
     BUCKET_ID,
     ID.unique(),
-    InputFile.fromBuffer(Buffer.from(await file.arrayBuffer()), fileName),
+    InputFile.fromBuffer(Buffer.from(await file.arrayBuffer()), fileName)
   );
 
   const fileUrl = `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${uploadedFile.$id}/view?project=${PROJECT_ID}`;
@@ -146,12 +156,13 @@ export const getPatientMedicalRecords = async ({
   const records = await databases.listDocuments(
     DATABASE_ID!,
     MEDICAL_RECORD_COLLECTION_ID,
-    [
-      Query.equal("userId", [userId]),
-      Query.equal("patientId", [patientId]),
-      Query.orderDesc("$createdAt"),
-    ],
+    [Query.orderDesc("$createdAt")]
   );
 
-  return parseStringify(records.documents as MedicalRecord[]);
+  // Filter records to only return those matching the requested patientId
+  const filteredRecords = records.documents.filter(
+    (record: any) => record.patientId === patientId
+  );
+
+  return parseStringify(filteredRecords as MedicalRecord[]);
 };

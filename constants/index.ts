@@ -18,7 +18,7 @@ export const PatientFormDefaultValues = {
   currentMedication: "",
   familyMedicalHistory: "",
   pastMedicalHistory: "",
-  identificationType: "Birth Certificate",
+  identificationType: "None",
   identificationNumber: "",
   identificationDocument: [],
   treatmentConsent: false,
@@ -27,6 +27,7 @@ export const PatientFormDefaultValues = {
 };
 
 export const IdentificationTypes = [
+  "None",
   "Birth Certificate",
   "Driver's License",
   "Medical Insurance Card/Policy",
@@ -44,42 +45,70 @@ export const Doctors = [
   {
     image: "/assets/images/dr-green.png",
     name: "Raj Kapoor",
+    specialty: "Cardiologist",
+    title: "Senior Consultant",
+    email: "raj.kapoor@careplus.com",
   },
   {
     image: "/assets/images/dr-cameron.png",
     name: "Ishita Mehta",
+    specialty: "Neurologist",
+    title: "Consultant",
+    email: "ishita.mehta@careplus.com",
   },
   {
     image: "/assets/images/dr-livingston.png",
     name: "Vivaan Reddy",
+    specialty: "Orthopedist",
+    title: "Consultant",
+    email: "vivaan.reddy@careplus.com",
   },
   {
     image: "/assets/images/dr-peter.png",
     name: "Aditya Singh",
+    specialty: "Ophthalmologist",
+    title: "Senior Consultant",
+    email: "aditya.singh@careplus.com",
   },
   {
     image: "/assets/images/dr-powell.png",
     name: "Diya Patel",
+    specialty: "Dermatologist",
+    title: "Consultant",
+    email: "diya.patel@careplus.com",
   },
   {
     image: "/assets/images/dr-remirez.png",
     name: "Karan Malhotra",
+    specialty: "Pediatrician",
+    title: "Consultant",
+    email: "karan.malhotra@careplus.com",
   },
   {
     image: "/assets/images/dr-lee.png",
     name: "Sneha Das",
+    specialty: "Gastroenterologist",
+    title: "Senior Consultant",
+    email: "sneha.das@careplus.com",
   },
   {
     image: "/assets/images/dr-cruz.png",
     name: "Ananya Nair",
+    specialty: "Psychiatrist",
+    title: "Consultant",
+    email: "ananya.nair@careplus.com",
   },
   {
     image: "/assets/images/dr-sharma.png",
     name: "Rohan Deshmukh",
+    specialty: "Urologist",
+    title: "Consultant",
+    email: "rohan.deshmukh@careplus.com",
   },
 ];
 
 export const TestCatalog = [
+  "None",
   "Blood Test",
   "CBC",
   "Lipid Profile",
@@ -98,6 +127,7 @@ export const TestCatalog = [
 ];
 
 export const RecordCategories = [
+  "None",
   "Clinical Note",
   "Lab Report",
   "Prescription",

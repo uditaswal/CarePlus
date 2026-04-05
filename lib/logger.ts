@@ -45,7 +45,7 @@ function sanitizeForLogs(value: unknown): unknown {
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
         REDACTED_KEYS.includes(key) ? "[REDACTED]" : sanitizeForLogs(entry),
-      ]),
+      ])
     );
   }
 
@@ -72,9 +72,11 @@ async function pruneOldLogs() {
         if (fileStats.mtimeMs < cutoff) {
           await rm(fullPath, { force: true });
         }
-      }),
+      })
   );
 }
+
+const isVercel = process.env.VERCEL === "1";
 
 export async function writeLog(input: Omit<LogEntry, "timestamp">) {
   const entry: LogEntry = {
@@ -85,9 +87,25 @@ export async function writeLog(input: Omit<LogEntry, "timestamp">) {
       : undefined,
   };
 
-  await ensureLogDirectory();
-  await pruneOldLogs();
-  await appendFile(getLogFilePath(), `${JSON.stringify(entry)}\n`, "utf8");
+  const logMessage = JSON.stringify(entry);
+
+  if (isVercel) {
+    switch (entry.level) {
+      case "INFO":
+        console.log(logMessage);
+        break;
+      case "WARN":
+        console.warn(logMessage);
+        break;
+      case "ERROR":
+        console.error(logMessage);
+        break;
+    }
+  } else {
+    await ensureLogDirectory();
+    await pruneOldLogs();
+    await appendFile(getLogFilePath(), `${logMessage}\n`, "utf8");
+  }
 }
 
 export function createRequestId() {
@@ -159,7 +177,12 @@ export async function logError(options: {
   data?: Record<string, unknown>;
 }) {
   const errorValue = options.error as
-    | { message?: string; stack?: string; code?: string | number; type?: string }
+    | {
+        message?: string;
+        stack?: string;
+        code?: string | number;
+        type?: string;
+      }
     | undefined;
 
   await writeLog({

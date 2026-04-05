@@ -43,76 +43,103 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-xl bg-white p-6 shadow-md"
-      >
-        <h1 className="mb-2 text-2xl font-semibold text-gray-900">
-          Secure Sign In
-        </h1>
-        <p className="mb-4 text-sm text-gray-600">
-          Sign in with a role-based account. Sessions are stored in secure
-          HTTP-only cookies.
-        </p>
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f3f4f6,_#ffffff_45%,_#e5e7eb_100%)] px-4 py-16">
+      <div className="mx-auto flex max-w-6xl flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
+        <section className="max-w-xl space-y-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-700">
+            Staff Access
+          </p>
+          <h1 className="text-5xl font-semibold leading-tight text-slate-900">
+            Manage appointments and patient care.
+          </h1>
+          <p className="text-lg text-slate-600">
+            Review scheduled appointments, approve reschedule requests, manage
+            patient records, and coordinate clinical updates with your team.
+          </p>
+          <Link
+            href="/patient/login"
+            className="inline-block text-sm font-medium text-blue-700 underline"
+          >
+            Patient portal
+          </Link>
+        </section>
 
-        <label className="mb-2 block text-sm font-medium text-gray-700">
-          Role
-        </label>
-        <select
-          className="mb-3 w-full rounded border p-2"
-          value={role}
-          onChange={(e) => {
-            setRole(e.target.value as "admin" | "doctor");
-            setError("");
-          }}
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-lg space-y-4 rounded-3xl border border-gray-200 bg-white p-8 shadow-xl"
         >
-          <option value="admin">Admin</option>
-          <option value="doctor">Doctor</option>
-        </select>
+          <div className="space-y-2">
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-blue-600">
+              STAFF LOGIN
+            </p>
+            <h2 className="text-3xl font-semibold text-slate-900">
+              Welcome back
+            </h2>
+            <p className="text-sm text-slate-600">
+              Sign in to access your staff dashboard and manage appointments.
+            </p>
+          </div>
 
-        <input
-          type="email"
-          placeholder={role === "admin" ? "admin@careplus.com" : "doctor@careplus.local"}
-          className="mb-3 w-full rounded border p-2"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setError("");
-          }}
-          required
-        />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Account Type
+            </label>
+            <select
+              className="w-full rounded-xl border border-slate-200 px-4 py-3"
+              value={role}
+              onChange={(e) => {
+                setRole(e.target.value as "admin" | "doctor");
+                setError("");
+              }}
+            >
+              <option value="admin">Administrator</option>
+              <option value="doctor">Doctor</option>
+            </select>
+          </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="mb-3 w-full rounded border p-2"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            setError("");
-          }}
-          required
-        />
+          <input
+            type="email"
+            placeholder={
+              role === "admin" ? "admin@careplus.com" : "doctor@careplus.local"
+            }
+            className="w-full rounded-xl border border-slate-200 px-4 py-3"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+            }}
+            required
+          />
 
-        {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full rounded-xl border border-slate-200 px-4 py-3"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError("");
+            }}
+            required
+          />
 
-        <button
-          disabled={isSubmitting}
-          className="w-full rounded bg-blue-600 p-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
-        >
-          {isSubmitting ? "Signing In..." : "Sign In"}
-        </button>
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <p className="mt-4 text-sm text-gray-600">
-          Use your staff account to review appointments, approve schedule
-          changes, and manage clinical updates.
-        </p>
+          <button
+            disabled={isSubmitting}
+            className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white disabled:cursor-not-allowed disabled:bg-blue-300 hover:bg-blue-700"
+          >
+            {isSubmitting ? "Signing in..." : "Sign in"}
+          </button>
 
-        <Link href="/" className="mt-3 block text-sm text-blue-600 hover:underline">
-          Back to patient portal
-        </Link>
-      </form>
+          <Link
+            href="/"
+            className="block text-center text-sm text-blue-600 hover:underline"
+          >
+            Back to HomePage
+          </Link>
+        </form>
+      </div>
     </main>
   );
 }

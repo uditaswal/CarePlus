@@ -17,9 +17,6 @@ const PatientLoginPage = () => {
             Check upcoming appointments, review visit notes, and look back at
             your medical history whenever you need it.
           </p>
-          <Link href="/patient/signup" className="inline-block text-sm font-medium text-emerald-700 underline">
-            Need an account? Create one here
-          </Link>
         </section>
 
         <PatientLoginForm />

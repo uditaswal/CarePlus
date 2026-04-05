@@ -46,7 +46,7 @@ export const AppointmentForm = ({
       primaryPhysician: appointment ? appointment?.primaryPhysician : "",
       schedule: appointment
         ? new Date(
-            (appointment?.requestedSchedule as string) || appointment?.schedule!,
+            (appointment?.requestedSchedule as string) || appointment?.schedule!
           )
         : new Date(Date.now()),
       reason: appointment ? appointment.reason : "",
@@ -56,7 +56,7 @@ export const AppointmentForm = ({
   });
 
   const onSubmit = async (
-    values: z.infer<typeof AppointmentFormValidation>,
+    values: z.infer<typeof AppointmentFormValidation>
   ) => {
     setIsLoading(true);
 
@@ -101,7 +101,7 @@ export const AppointmentForm = ({
         if (newAppointment) {
           form.reset();
           router.push(
-            `/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`,
+            `/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`
           );
         }
       } else {
@@ -179,7 +179,12 @@ export const AppointmentForm = ({
                       alt="doctor"
                       className="rounded-full border border-dark-500"
                     />
-                    <p>{doctor.name}</p>
+                    <div className="flex flex-col">
+                      <p className="font-medium">{doctor.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {doctor.specialty}
+                      </p>
+                    </div>
                   </div>
                 </SelectItem>
               ))}
@@ -212,7 +217,11 @@ export const AppointmentForm = ({
                 fieldType={FormFieldType.TEXTAREA}
                 control={form.control}
                 name="note"
-                label={type === "schedule" ? "Approval/update note" : "Comments/notes"}
+                label={
+                  type === "schedule"
+                    ? "Approval/update note"
+                    : "Comments/notes"
+                }
                 placeholder={
                   type === "schedule"
                     ? "Add an approval note or update for this appointment"

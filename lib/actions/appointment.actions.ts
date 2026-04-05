@@ -32,7 +32,7 @@ const getAuthorizedAppointmentDocuments = async () => {
   const appointments = await databases.listDocuments(
     DATABASE_ID!,
     APPOINTMENT_COLLECTION_ID!,
-    [Query.orderDesc("$createdAt")],
+    [Query.orderDesc("$createdAt")]
   );
 
   return appointments.documents as Appointment[];
@@ -49,11 +49,20 @@ export const createAppointment = async (
       redirectTo: "/",
     });
 
+    // Remove fields that don't exist in the database schema
+    const {
+      noteHistory,
+      requestStatus,
+      requestedSchedule,
+      rescheduleReason,
+      ...appointmentData
+    } = appointment;
+
     const newAppointment = await databases.createDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       ID.unique(),
-      appointment
+      appointmentData
     );
 
     revalidatePath("/admin");
@@ -126,7 +135,7 @@ export const getPatientAppointments = async (userId: string) => {
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
-      [Query.equal("userId", [userId]), Query.orderDesc("$createdAt")],
+      [Query.equal("userId", [userId]), Query.orderDesc("$createdAt")]
     );
 
     return parseStringify(appointments.documents as Appointment[]);
@@ -140,7 +149,7 @@ export const getPatientAppointments = async (userId: string) => {
     });
     console.error(
       "An error occurred while retrieving patient appointments:",
-      error,
+      error
     );
     return [];
   }
@@ -162,7 +171,7 @@ export const requestAppointmentReschedule = async ({
     const appointment = await databases.getDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
-      appointmentId,
+      appointmentId
     );
 
     const updatedAppointment = await databases.updateDocument(
@@ -177,10 +186,10 @@ export const requestAppointmentReschedule = async ({
           ...(appointment.noteHistory || []),
           formatAppointmentComment(
             "Patient",
-            `requested a new time for ${formatDateTime(requestedSchedule).dateTime}. ${rescheduleReason}`,
+            `requested a new time for ${formatDateTime(requestedSchedule).dateTime}. ${rescheduleReason}`
           ),
         ],
-      },
+      }
     );
 
     revalidatePath("/admin");
@@ -225,7 +234,7 @@ export const addAppointmentComment = async ({
     const appointment = await databases.getDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
-      appointmentId,
+      appointmentId
     );
 
     if (session.role === "patient" && appointment.userId !== userId) {
@@ -249,7 +258,7 @@ export const addAppointmentComment = async ({
           ...(appointment.noteHistory || []),
           formatAppointmentComment(author, comment),
         ],
-      },
+      }
     );
 
     revalidatePath("/admin");
@@ -324,7 +333,9 @@ export const updateAppointment = async ({
       {
         ...appointment,
         requestStatus:
-          type === "schedule" ? "approved" : appointment.requestStatus || "none",
+          type === "schedule"
+            ? "approved"
+            : appointment.requestStatus || "none",
         requestedSchedule:
           type === "schedule" ? null : appointment.requestedSchedule || null,
         rescheduleReason:
@@ -332,10 +343,7 @@ export const updateAppointment = async ({
         noteHistory: appointment.note
           ? [
               ...(appointment.noteHistory || []),
-              formatAppointmentComment(
-                "Staff",
-                appointment.note,
-              ),
+              formatAppointmentComment("Staff", appointment.note),
             ]
           : appointment.noteHistory,
       }

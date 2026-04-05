@@ -135,7 +135,7 @@ function verifySessionToken(token: string) {
 
   try {
     const payload = JSON.parse(
-      base64UrlDecode(encodedPayload),
+      base64UrlDecode(encodedPayload)
     ) as AuthSessionPayload;
 
     if (payload.exp <= Date.now()) {
@@ -156,7 +156,7 @@ function recordLoginActivity(
   role: AuthRole,
   identifier: string,
   success: boolean,
-  reason: string,
+  reason: string
 ) {
   const store = getAuthStore();
   const requestHeaders = headers();
@@ -204,7 +204,10 @@ function getCredentialsForRole(role: AuthRole) {
     case "admin":
       return {
         email: process.env.ADMIN_EMAIL || "admin@careplus.com",
-        password: process.env.ADMIN_PASSWORD || process.env.NEXT_PUBLIC_ADMIN_PASSKEY || "",
+        password:
+          process.env.ADMIN_PASSWORD ||
+          process.env.NEXT_PUBLIC_ADMIN_PASSKEY ||
+          "",
         name: process.env.ADMIN_NAME || "CarePlus Admin",
         redirectTo: "/admin",
       };
@@ -303,7 +306,8 @@ export async function authenticateWithPassword(input: {
     recordLoginActivity(input.role, identifier, false, "account-locked");
     return {
       ok: false as const,
-      error: "Account locked after multiple failed attempts. Please try again later.",
+      error:
+        "Account locked after multiple failed attempts. Please try again later.",
     };
   }
 
@@ -323,7 +327,7 @@ export async function authenticateWithPassword(input: {
       input.role,
       identifier,
       false,
-      shouldLock ? "lockout-triggered" : "invalid-credentials",
+      shouldLock ? "lockout-triggered" : "invalid-credentials"
     );
 
     return {
@@ -365,7 +369,7 @@ export async function signupPatientWithPassword(input: CreatePortalUserParams) {
       identifier,
       input.phone,
       input.password,
-      input.name,
+      input.name
     );
 
     await setAuthSession({
@@ -384,6 +388,44 @@ export async function signupPatientWithPassword(input: CreatePortalUserParams) {
     };
   } catch (error: any) {
     if (error?.code === 409) {
+      // Email already exists - check if patient profile is complete
+      try {
+        const existingUsers = await users.list([
+          Query.equal("email", identifier),
+        ]);
+
+        if (existingUsers.users.length > 0) {
+          const existingUser = existingUsers.users[0];
+
+          // Check if patient has completed registration
+          const { PATIENT_COLLECTION_ID, DATABASE_ID, databases } =
+            await import("./appwrite.config");
+          const patientProfile = await databases.listDocuments(
+            DATABASE_ID!,
+            PATIENT_COLLECTION_ID!,
+            [Query.equal("userId", existingUser.$id)]
+          );
+
+          // If no patient profile exists, allow them to complete registration
+          if (patientProfile.documents.length === 0) {
+            await setAuthSession({
+              userId: existingUser.$id,
+              role: "patient",
+              email: existingUser.email,
+              name: existingUser.name,
+            });
+
+            return {
+              ok: true as const,
+              userId: existingUser.$id,
+              redirectTo: `/patients/${existingUser.$id}/register`,
+            };
+          }
+        }
+      } catch (checkError) {
+        // If check fails, fall through to normal error handling
+      }
+
       await logWarn({
         category: "auth",
         event: "patient.signup.account_exists",
@@ -491,9 +533,7 @@ export async function requestPatientPasswordRecovery(email: string) {
     return {
       ok: false as const,
       error:
-        error instanceof Error
-          ? error.message
-          : "Unable to send reset email",
+        error instanceof Error ? error.message : "Unable to send reset email",
     };
   }
 }
@@ -569,7 +609,8 @@ export async function authenticatePatient(input: {
     recordLoginActivity("patient", identifier, false, "account-locked");
     return {
       ok: false as const,
-      error: "Account locked after multiple failed attempts. Please try again later.",
+      error:
+        "Account locked after multiple failed attempts. Please try again later.",
     };
   }
 
@@ -604,7 +645,9 @@ export async function authenticatePatient(input: {
 
     return {
       ok: true as const,
-      redirectTo: patientProfile ? "/portal" : `/patients/${appwriteUser.$id}/register`,
+      redirectTo: patientProfile
+        ? "/portal"
+        : `/patients/${appwriteUser.$id}/register`,
     };
   } catch (error) {
     await logError({
@@ -627,7 +670,7 @@ export async function authenticatePatient(input: {
       "patient",
       identifier,
       false,
-      shouldLock ? "lockout-triggered" : "invalid-credentials",
+      shouldLock ? "lockout-triggered" : "invalid-credentials"
     );
 
     return {

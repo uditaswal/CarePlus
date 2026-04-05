@@ -25,7 +25,7 @@ const RequestSuccess = async ({
   }
 
   const doctor = Doctors.find(
-    (doctor) => doctor.name === appointment.primaryPhysician,
+    (doctor) => doctor.name === appointment.primaryPhysician
   );
 
   return (
@@ -65,7 +65,12 @@ const RequestSuccess = async ({
               height={100}
               className="size-6"
             />
-            <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
+            <div className="flex flex-col">
+              <p className="whitespace-nowrap font-medium">
+                Dr. {doctor?.name}
+              </p>
+              <p className="text-sm text-gray-600">{doctor?.specialty}</p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Image

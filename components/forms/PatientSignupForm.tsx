@@ -4,11 +4,29 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const COUNTRY_CODES = [
+  { code: "+1", country: "United States" },
+  { code: "+1", country: "Canada" },
+  { code: "+44", country: "United Kingdom" },
+  { code: "+91", country: "India" },
+  { code: "+61", country: "Australia" },
+  { code: "+33", country: "France" },
+  { code: "+49", country: "Germany" },
+  { code: "+39", country: "Italy" },
+  { code: "+34", country: "Spain" },
+  { code: "+81", country: "Japan" },
+  { code: "+86", country: "China" },
+  { code: "+55", country: "Brazil" },
+  { code: "+27", country: "South Africa" },
+  { code: "+7", country: "Russia" },
+];
+
 export const PatientSignupForm = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    countryCode: "+91",
     phone: "",
     password: "",
   });
@@ -26,7 +44,10 @@ export const PatientSignupForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          phone: `${formData.countryCode}${formData.phone}`,
+        }),
       });
 
       const payload = await response.json();
@@ -46,7 +67,7 @@ export const PatientSignupForm = () => {
       setError(
         signupError instanceof Error
           ? signupError.message
-          : "Unable to create account",
+          : "Unable to create account"
       );
     } finally {
       setIsSubmitting(false);
@@ -93,9 +114,32 @@ export const PatientSignupForm = () => {
         required
       />
 
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-slate-700">
+          Country Code
+        </label>
+        <select
+          className="w-full rounded-xl border border-slate-200 px-4 py-3"
+          value={formData.countryCode}
+          onChange={(event) =>
+            setFormData((current) => ({
+              ...current,
+              countryCode: event.target.value,
+            }))
+          }
+          required
+        >
+          {COUNTRY_CODES.map((item) => (
+            <option key={`${item.code}-${item.country}`} value={item.code}>
+              {item.country} ({item.code})
+            </option>
+          ))}
+        </select>
+      </div>
+
       <input
         type="tel"
-        placeholder="+91 9999999999"
+        placeholder="9999999999"
         className="w-full rounded-xl border border-slate-200 px-4 py-3"
         value={formData.phone}
         onChange={(event) =>
