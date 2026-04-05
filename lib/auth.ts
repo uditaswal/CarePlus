@@ -388,18 +388,21 @@ export async function signupPatientWithPassword(input: CreatePortalUserParams) {
     };
   } catch (error: any) {
     if (error?.code === 409) {
-      // Email already exists - check if patient profile is complete
+      // Account conflict - check if it's email or phone
       try {
-        const existingUsers = await users.list([
+        const { PATIENT_COLLECTION_ID, DATABASE_ID, databases } = await import(
+          "./appwrite.config"
+        );
+
+        // Check if email already exists
+        const usersByEmail = await users.list([
           Query.equal("email", identifier),
         ]);
 
-        if (existingUsers.users.length > 0) {
-          const existingUser = existingUsers.users[0];
+        if (usersByEmail.users.length > 0) {
+          const existingUser = usersByEmail.users[0];
 
           // Check if patient has completed registration
-          const { PATIENT_COLLECTION_ID, DATABASE_ID, databases } =
-            await import("./appwrite.config");
           const patientProfile = await databases.listDocuments(
             DATABASE_ID!,
             PATIENT_COLLECTION_ID!,
@@ -415,21 +418,93 @@ export async function signupPatientWithPassword(input: CreatePortalUserParams) {
               name: existingUser.name,
             });
 
+            await logInfo({
+              category: "auth",
+              event: "patient.signup.incomplete_profile_found",
+              message:
+                "Patient with incomplete profile redirected to complete registration",
+              data: {
+                userId: existingUser.$id,
+                email: identifier,
+              },
+            });
+
             return {
               ok: true as const,
               userId: existingUser.$id,
               redirectTo: `/patients/${existingUser.$id}/register`,
             };
           }
+
+          // Patient has a completed profile - log detailed info
+          await logWarn({
+            category: "auth",
+            event: "patient.signup.email_exists",
+            message:
+              "Signup blocked because the patient account already exists with this email",
+            data: {
+              email: identifier,
+              phone: input.phone,
+              existingUserId: existingUser.$id,
+            },
+          });
+
+          return {
+            ok: false as const,
+            error:
+              "An account already exists for this email. Please sign in instead.",
+            redirectTo: "/patient/login?reason=account-exists",
+          };
+        }
+
+        // Email not found, check if phone already exists
+        const usersByPhone = await users.list([
+          Query.equal("phone", input.phone),
+        ]);
+
+        if (usersByPhone.users.length > 0) {
+          const existingUser = usersByPhone.users[0];
+
+          await logWarn({
+            category: "auth",
+            event: "patient.signup.phone_exists",
+            message:
+              "Signup blocked because the phone number is already registered with another account",
+            data: {
+              email: identifier,
+              phone: input.phone,
+              existingUserId: existingUser.$id,
+              existingUserEmail: existingUser.email,
+            },
+          });
+
+          return {
+            ok: false as const,
+            error:
+              "This phone number is already registered with another account. Please use a different phone number or sign in instead.",
+            redirectTo: "/patient/login?reason=phone-exists",
+          };
         }
       } catch (checkError) {
-        // If check fails, fall through to normal error handling
+        // If check fails, log the error and fall through
+        await logError({
+          category: "auth",
+          event: "patient.signup.conflict_check_failed",
+          message: "Failed to determine cause of signup conflict",
+          error: checkError,
+          data: {
+            email: identifier,
+            phone: input.phone,
+          },
+        });
       }
 
+      // Fallback error if we can't determine the exact cause
       await logWarn({
         category: "auth",
-        event: "patient.signup.account_exists",
-        message: "Signup blocked because the patient account already exists",
+        event: "patient.signup.account_conflict",
+        message:
+          "Signup blocked - account with this email or phone already exists",
         data: {
           email: identifier,
           phone: input.phone,
@@ -439,7 +514,7 @@ export async function signupPatientWithPassword(input: CreatePortalUserParams) {
       return {
         ok: false as const,
         error:
-          "An account already exists for this email. Please sign in instead.",
+          "An account with this email or phone already exists. Please sign in instead.",
         redirectTo: "/patient/login?reason=account-exists",
       };
     }
