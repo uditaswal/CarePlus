@@ -1,6 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { ID, InputFile, Query } from "node-appwrite";
+
+import { requireSession, setAuthSession } from "@/lib/auth";
+import { logError, logInfo } from "@/lib/logger";
 
 import {
   BUCKET_ID,
@@ -26,6 +30,23 @@ export const createUser = async (user: CreateUserParams) => {
       user.name,
     );
 
+    await setAuthSession({
+      userId: newuser.$id,
+      role: "patient",
+      email: newuser.email,
+      name: newuser.name,
+    });
+
+    await logInfo({
+      category: "patient",
+      event: "patient.create_user.success",
+      message: "Patient user created",
+      data: {
+        userId: newuser.$id,
+        email: newuser.email,
+      },
+    });
+
     return parseStringify(newuser);
   } catch (error: any) {
     // Check existing user
@@ -34,8 +55,37 @@ export const createUser = async (user: CreateUserParams) => {
         Query.equal("email", [user.email]),
       ]);
 
+      if (existingUser.users[0]) {
+        await setAuthSession({
+          userId: existingUser.users[0].$id,
+          role: "patient",
+          email: existingUser.users[0].email,
+          name: existingUser.users[0].name,
+        });
+
+        await logInfo({
+          category: "patient",
+          event: "patient.create_user.reused",
+          message: "Existing patient user reused",
+          data: {
+            userId: existingUser.users[0].$id,
+            email: existingUser.users[0].email,
+          },
+        });
+      }
+
       return existingUser.users[0];
     }
+    await logError({
+      category: "patient",
+      event: "patient.create_user.failed",
+      message: "Failed to create patient user",
+      error,
+      data: {
+        email: user.email,
+        phone: user.phone,
+      },
+    });
     console.error("An error occurred while creating a new user:", error);
   }
 };
@@ -60,6 +110,12 @@ export const registerPatient = async ({
   ...patient
 }: RegisterUserParams) => {
   try {
+    await requireSession({
+      roles: ["patient"],
+      userId: patient.userId,
+      redirectTo: "/",
+    });
+
     // Upload file ->  // https://appwrite.io/docs/references/cloud/client-web/storage#createFile
     let file;
     if (identificationDocument) {
@@ -87,8 +143,37 @@ export const registerPatient = async ({
       },
     );
 
+    await setAuthSession({
+      userId: patient.userId,
+      role: "patient",
+      email: patient.email,
+      name: patient.name,
+      patientId: newPatient.$id,
+    });
+
+    await logInfo({
+      category: "patient",
+      event: "patient.register.success",
+      message: "Patient profile registered",
+      data: {
+        userId: patient.userId,
+        patientId: newPatient.$id,
+        email: patient.email,
+      },
+    });
+
     return parseStringify(newPatient);
   } catch (error) {
+    await logError({
+      category: "patient",
+      event: "patient.register.failed",
+      message: "Failed to register patient profile",
+      error,
+      data: {
+        userId: patient.userId,
+        email: patient.email,
+      },
+    });
     console.error("An error occurred while creating a new patient:", error);
   }
 };
@@ -108,5 +193,52 @@ export const getPatient = async (userId: string) => {
       "An error occurred while retrieving the patient details:",
       error,
     );
+  }
+};
+
+export const updatePatientProfile = async (
+  patient: UpdatePatientProfileParams,
+) => {
+  try {
+    await requireSession({
+      roles: ["patient"],
+      userId: patient.userId,
+      redirectTo: "/patient/login",
+    });
+
+    const { patientId, ...patientData } = patient;
+
+    const updatedPatient = await databases.updateDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      patientId,
+      patientData,
+    );
+
+    revalidatePath("/portal");
+
+    await logInfo({
+      category: "patient",
+      event: "patient.profile.update.success",
+      message: "Patient profile updated",
+      data: {
+        userId: patient.userId,
+        patientId,
+      },
+    });
+
+    return parseStringify(updatedPatient);
+  } catch (error) {
+    await logError({
+      category: "patient",
+      event: "patient.profile.update.failed",
+      message: "Failed to update patient profile",
+      error,
+      data: {
+        userId: patient.userId,
+        patientId: patient.patientId,
+      },
+    });
+    console.error("An error occurred while updating patient profile:", error);
   }
 };

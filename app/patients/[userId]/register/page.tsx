@@ -3,8 +3,15 @@ import { redirect } from "next/navigation";
 
 import RegisterForm from "@/components/forms/RegisterForm";
 import { getPatient, getUser } from "@/lib/actions/patient.actions";
+import { requireSession } from "@/lib/auth";
 
 const Register = async ({ params: { userId } }: SearchParamProps) => {
+  await requireSession({
+    roles: ["patient"],
+    userId,
+    redirectTo: "/",
+  });
+
   const user = await getUser(userId);
   const patient = await getPatient(userId);
 

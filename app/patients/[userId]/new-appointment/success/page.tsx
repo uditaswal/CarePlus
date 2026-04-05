@@ -1,17 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Doctors } from "@/constants";
 import { getAppointment } from "@/lib/actions/appointment.actions";
+import { requireSession } from "@/lib/auth";
 import { formatDateTime } from "@/lib/utils";
 
 const RequestSuccess = async ({
   searchParams,
   params: { userId },
 }: SearchParamProps) => {
+  const session = await requireSession({
+    roles: ["patient"],
+    userId,
+    redirectTo: "/",
+  });
   const appointmentId = (searchParams?.appointmentId as string) || "";
   const appointment = await getAppointment(appointmentId);
+
+  if (!appointment || appointment.userId !== session.userId) {
+    redirect(`/patients/${session.userId}/new-appointment`);
+  }
 
   const doctor = Doctors.find(
     (doctor) => doctor.name === appointment.primaryPhysician,

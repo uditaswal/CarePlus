@@ -2,8 +2,15 @@ import Image from "next/image";
 
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/patient.actions";
+import { requireSession } from "@/lib/auth";
 
 const Appointment = async ({ params: { userId } }: SearchParamProps) => {
+  await requireSession({
+    roles: ["patient"],
+    userId,
+    redirectTo: "/",
+  });
+
   const patient = await getPatient(userId);
 
   return (

@@ -11,6 +11,31 @@ export const UserFormValidation = z.object({
     .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
 });
 
+export const PatientSignupValidation = UserFormValidation.extend({
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(64, "Password must be at most 64 characters"),
+});
+
+export const PatientLoginValidation = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const ForgotPasswordValidation = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const ResetPasswordValidation = z.object({
+  userId: z.string().min(1, "User ID is required"),
+  secret: z.string().min(1, "Secret is required"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(64, "Password must be at most 64 characters"),
+});
+
 export const PatientFormValidation = z.object({
   name: z
     .string()
@@ -116,3 +141,46 @@ export function getAppointmentSchema(type: string) {
       return ScheduleAppointmentSchema;
   }
 }
+
+export const MedicalRecordValidation = z.object({
+  userId: z.string().min(1, "User ID is required"),
+  patientId: z.string().min(1, "Patient ID is required"),
+  appointmentId: z.string().optional(),
+  doctorName: z.string().min(2, "Doctor name is required"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  category: z.string().min(2, "Category is required"),
+  summary: z.string().min(10, "Summary must be at least 10 characters"),
+  documentType: z.string().optional(),
+  relatedTo: z.string().optional(),
+  performedOn: z.coerce.date().optional().nullable(),
+  physicianName: z.string().optional(),
+  bloodWork: z.string().optional(),
+  medications: z.string().optional(),
+  recommendations: z.string().optional(),
+  followUpDate: z.coerce.date().optional().nullable(),
+});
+
+export const RescheduleRequestValidation = z.object({
+  requestedSchedule: z.coerce.date(),
+  rescheduleReason: z
+    .string()
+    .min(5, "Please share a short reason")
+    .max(500, "Reason must be at most 500 characters"),
+});
+
+export const AppointmentCommentValidation = z.object({
+  comment: z
+    .string()
+    .min(2, "Comment must be at least 2 characters")
+    .max(500, "Comment must be at most 500 characters"),
+});
+
+export const PatientProfileUpdateValidation = PatientFormValidation.omit({
+  identificationDocument: true,
+  treatmentConsent: true,
+  disclosureConsent: true,
+  privacyConsent: true,
+}).extend({
+  identificationType: z.string().optional(),
+  identificationNumber: z.string().optional(),
+});

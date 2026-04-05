@@ -13,6 +13,9 @@ declare interface CreateUserParams {
   email: string;
   phone: string;
 }
+declare interface CreatePortalUserParams extends CreateUserParams {
+  password: string;
+}
 declare interface User extends CreateUserParams {
   $id: string;
 }
@@ -46,12 +49,75 @@ declare type CreateAppointmentParams = {
   schedule: Date;
   status: Status;
   note: string | undefined;
+  noteHistory?: string[];
+  requestStatus?: "none" | "pending" | "approved" | "declined";
+  requestedSchedule?: Date | null;
+  rescheduleReason?: string | null;
 };
 
 declare type UpdateAppointmentParams = {
   appointmentId: string;
   userId: string;
   timeZone: string;
-  appointment: Appointment;
+  appointment: Partial<Appointment>;
   type: string;
+};
+
+declare type RequestRescheduleParams = {
+  appointmentId: string;
+  userId: string;
+  requestedSchedule: Date;
+  rescheduleReason: string;
+};
+
+declare type AddAppointmentCommentParams = {
+  appointmentId: string;
+  userId: string;
+  comment: string;
+};
+
+declare type UpdatePatientProfileParams = {
+  userId: string;
+  patientId: string;
+  name: string;
+  email: string;
+  phone: string;
+  birthDate: Date;
+  gender: Gender;
+  address: string;
+  occupation: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  primaryPhysician: string;
+  insuranceProvider: string;
+  insurancePolicyNumber: string;
+  allergies?: string;
+  currentMedication?: string;
+  familyMedicalHistory?: string;
+  pastMedicalHistory?: string;
+  identificationType?: string;
+  identificationNumber?: string;
+};
+
+declare type CreateMedicalRecordParams = {
+  userId: string;
+  patientId: string;
+  appointmentId?: string;
+  doctorName: string;
+  title: string;
+  category: string;
+  summary: string;
+  uploadedByRole?: "patient" | "doctor" | "admin";
+  uploadedByName?: string;
+  uploadedAt?: string;
+  documentType?: string;
+  relatedTo?: string;
+  performedOn?: Date | null;
+  physicianName?: string;
+  bloodWork?: string;
+  medications?: string;
+  recommendations?: string;
+  followUpDate?: Date | null;
+  attachments?: string[];
+  attachmentMetadata?: string[];
 };

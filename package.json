@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/identity": "^4.10.0",
+    "@azure/keyvault-secrets": "^4.9.0",
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-checkbox": "^1.0.4",

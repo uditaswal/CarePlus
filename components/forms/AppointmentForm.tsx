@@ -45,7 +45,9 @@ export const AppointmentForm = ({
     defaultValues: {
       primaryPhysician: appointment ? appointment?.primaryPhysician : "",
       schedule: appointment
-        ? new Date(appointment?.schedule!)
+        ? new Date(
+            (appointment?.requestedSchedule as string) || appointment?.schedule!,
+          )
         : new Date(Date.now()),
       reason: appointment ? appointment.reason : "",
       note: appointment?.note || "",
@@ -80,6 +82,18 @@ export const AppointmentForm = ({
           reason: values.reason!,
           status: status as Status,
           note: values.note,
+          noteHistory: values.note
+            ? [
+                `Patient updated on ${new Date().toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}: ${values.note}`,
+              ]
+            : [],
+          requestStatus: "none" as const,
+          requestedSchedule: null,
+          rescheduleReason: null,
         };
 
         const newAppointment = await createAppointment(appointment);
@@ -99,6 +113,11 @@ export const AppointmentForm = ({
             schedule: new Date(values.schedule),
             status: status as Status,
             cancellationReason: values.cancellationReason,
+            note: values.note,
+            noteHistory: appointment?.noteHistory || [],
+            requestedSchedule: appointment?.requestedSchedule || null,
+            rescheduleReason: appointment?.rescheduleReason || null,
+            requestStatus: appointment?.requestStatus || "none",
           },
           type,
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // ✅ added timeZone
@@ -193,9 +212,12 @@ export const AppointmentForm = ({
                 fieldType={FormFieldType.TEXTAREA}
                 control={form.control}
                 name="note"
-                label="Comments/notes"
-                placeholder="Prefer afternoon appointments, if possible"
-                disabled={type === "schedule"}
+                label={type === "schedule" ? "Approval/update note" : "Comments/notes"}
+                placeholder={
+                  type === "schedule"
+                    ? "Add an approval note or update for this appointment"
+                    : "Prefer afternoon appointments, if possible"
+                }
               />
             </div>
           </>

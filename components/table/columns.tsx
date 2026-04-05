@@ -33,6 +33,9 @@ export const columns: ColumnDef<Appointment>[] = [
       return (
         <div className="min-w-[115px]">
           <StatusBadge status={appointment.status} />
+          {appointment.requestStatus === "pending" && (
+            <p className="mt-1 text-xs text-amber-400">Reschedule requested</p>
+          )}
         </div>
       );
     },

@@ -27,22 +27,20 @@ export const PasskeyModal = () => {
   const [passkey, setPasskey] = useState("");
   const [error, setError] = useState("");
 
-  const encryptedKey =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("accessKey")
-      : null;
-
   useEffect(() => {
-    const accessKey = encryptedKey && decryptKey(encryptedKey);
+    if (!path || typeof window === "undefined") return;
 
-    if (path)
-      if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY!.toString()) {
-        setOpen(false);
-        router.push("/admin");
-      } else {
-        setOpen(true);
-      }
-  }, [encryptedKey]);
+    const encryptedKey = window.localStorage.getItem("accessKey");
+    const accessKey = encryptedKey ? decryptKey(encryptedKey) : null;
+
+    if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY?.toString()) {
+      setOpen(false);
+      router.push("/admin");
+      return;
+    }
+
+    setOpen(true);
+  }, [path, router]);
 
   const closeModal = () => {
     setOpen(false);
@@ -60,6 +58,7 @@ export const PasskeyModal = () => {
       localStorage.setItem("accessKey", encryptedKey);
 
       setOpen(false);
+      router.push("/admin");
     } else {
       setError("Invalid passkey. Please try again.");
     }

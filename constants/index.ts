@@ -79,6 +79,35 @@ export const Doctors = [
   },
 ];
 
+export const TestCatalog = [
+  "Blood Test",
+  "CBC",
+  "Lipid Profile",
+  "Liver Function Test",
+  "Kidney Function Test",
+  "Thyroid Profile",
+  "HbA1c",
+  "Urine Analysis",
+  "X-Ray",
+  "CT Scan",
+  "MRI",
+  "Ultrasound",
+  "ECG",
+  "Echocardiogram",
+  "Stress Test",
+];
+
+export const RecordCategories = [
+  "Clinical Note",
+  "Lab Report",
+  "Prescription",
+  "Imaging Report",
+  "Discharge Summary",
+  "Test Order",
+  "Referral",
+  "Patient Upload",
+];
+
 export const StatusIcon = {
   scheduled: "/assets/icons/check.svg",
   pending: "/assets/icons/pending.svg",

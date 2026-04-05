@@ -31,6 +31,33 @@ export interface Appointment extends Models.Document {
   primaryPhysician: string;
   reason: string;
   note: string;
+  noteHistory?: string[];
+  requestStatus?: "none" | "pending" | "approved" | "declined";
+  requestedSchedule?: Date | string | null;
+  rescheduleReason?: string | null;
   userId: string;
   cancellationReason: string | null;
+}
+
+export interface MedicalRecord extends Models.Document {
+  userId: string;
+  patientId: string;
+  appointmentId?: string | null;
+  doctorName: string;
+  title: string;
+  category: string;
+  summary: string;
+  uploadedByRole?: "patient" | "doctor" | "admin";
+  uploadedByName?: string;
+  uploadedAt?: string;
+  documentType?: string | null;
+  relatedTo?: string | null;
+  performedOn?: Date | string | null;
+  physicianName?: string | null;
+  bloodWork: string | null;
+  medications: string | null;
+  recommendations: string | null;
+  followUpDate: Date | string | null;
+  attachments: string[] | null;
+  attachmentMetadata?: string[] | null;
 }
