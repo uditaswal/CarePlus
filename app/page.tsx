@@ -51,12 +51,6 @@ const Home = () => {
             >
               Patient login
             </Link>
-            <Link
-              href="/portal"
-              className="rounded-full border border-slate-300 bg-white px-6 py-3 font-medium text-slate-900"
-            >
-              Open portal
-            </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
