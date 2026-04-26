@@ -9,10 +9,14 @@ export const Footer = () => {
         <div className="flex flex-col items-center justify-center gap-3 md:gap-4 md:flex-row md:justify-between">
           <p className="text-xs md:text-sm text-slate-600 text-center">
             &copy; {currentYear} CarePlus &bull; Healthcare Appointment
-            <br className="hidden sm:block" /> Management &bull; Created by Udit
-            Aswal
+            <br className="hidden sm:block" /> Management 
           </p>
           <div className="flex gap-6">
+                        <a
+              className="text-xs md:text-sm text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              &bull; Created by Udit Aswal
+            </a>
             <Link
               href="https://portfolio-uditaswal.vercel.app/"
               target="_blank"
